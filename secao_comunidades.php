@@ -277,13 +277,6 @@ $result = $conn->query($sql);
             document.getElementById('modal').style.display = 'flex';
         }
 
-        window.onclick = function (e) {
-            const modal = document.getElementById('modal');
-            if (e.target === modal) {
-                modal.style.display = 'none';
-            }
-        };
-
         function abrirModalEditar(id, nome, descricao) {
             document.getElementById('editarId').value = id;
             document.getElementById('editarNome').value = nome;
@@ -292,7 +285,12 @@ $result = $conn->query($sql);
         }
 
         window.onclick = function (e) {
+            const modalCriar = document.getElementById('modal');
             const modalEditar = document.getElementById('modalEditar');
+
+            if (e.target === modalCriar) {
+                modalCriar.style.display = 'none';
+            }
             if (e.target === modalEditar) {
                 modalEditar.style.display = 'none';
             }
