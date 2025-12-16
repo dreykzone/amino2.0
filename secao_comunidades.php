@@ -200,19 +200,44 @@ $result = $conn->query($sql);
     <main>
         <div class="comunidades">
             <?php while ($c = $result->fetch_assoc()): ?>
-                <div class="card" onclick="window.location='comunidade.php?id=<?= $c['id'] ?>'">
+                <div class="card">
                     <?php if ($c["imagem"]): ?>
                         <img src="<?= htmlspecialchars($c["imagem"]) ?>"
                             style="width:100%; border-radius:10px; margin-bottom:10px;">
                     <?php endif; ?>
 
-                    <h3><?= htmlspecialchars($c["nome"]) ?></h3>
+                    <h3 onclick="window.location='comunidade.php?id=<?= $c['id'] ?>'" style="cursor:pointer;">
+                        <?= htmlspecialchars($c["nome"]) ?>
+                    </h3>
                     <p><?= htmlspecialchars($c["descricao"]) ?></p>
                     <small>Criado por @<?= htmlspecialchars($c["username"]) ?></small>
+
+                    <?php if ($_SESSION['user_id'] == $c['id_criador']): ?>
+                        <div style="margin-top:10px; display:flex; gap:10px;">
+                            <form action="editar_comunidade.php" method="GET" style="display:inline;"
+                                onsubmit="event.stopPropagation();">
+                                <input type="hidden" name="id" value="<?= $c['id'] ?>">
+                                <button type="button"
+                                    onclick="event.stopPropagation(); abrirModalEditar('<?= $c['id'] ?>','<?= htmlspecialchars($c['nome'], ENT_QUOTES) ?>','<?= htmlspecialchars($c['descricao'], ENT_QUOTES) ?>')"
+                                    style="padding:6px 12px; background:#f0ad4e; color:#fff; border:none; border-radius:6px; cursor:pointer;">
+                                    Editar
+                                </button>
+
+                            </form>
+
+                            <form action="deletar_comunidade.php" method="POST" style="display:inline;"
+                                onsubmit="event.stopPropagation(); return confirm('Tem certeza que quer deletar?');">
+                                <input type="hidden" name="id" value="<?= $c['id'] ?>">
+                                <button type="submit"
+                                    style="padding:6px 12px; background:#d9534f; color:#fff; border:none; border-radius:6px; cursor:pointer;">Deletar</button>
+                            </form>
+                        </div>
+                    <?php endif; ?>
                 </div>
             <?php endwhile; ?>
         </div>
     </main>
+
 
     <div class="fab" onclick="abrirModal()">+</div>
 
@@ -233,6 +258,20 @@ $result = $conn->query($sql);
         © 2025 Andrey. Todos os direitos reservados.
     </footer>
 
+    <div class="modal" id="modalEditar">
+        <div class="modal-content">
+            <h2>Editar Comunidade</h2>
+            <form id="formEditar" action="salvar_edicao_comunidade.php" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="id" id="editarId">
+                <input type="text" name="nome" id="editarNome" placeholder="Nome da comunidade" required>
+                <textarea name="descricao" id="editarDescricao" placeholder="Descrição" required></textarea>
+                <input type="file" name="imagem" accept="image/*">
+                <button type="submit">Salvar Alterações</button>
+            </form>
+        </div>
+    </div>
+
+
     <script>
         function abrirModal() {
             document.getElementById('modal').style.display = 'flex';
@@ -244,6 +283,21 @@ $result = $conn->query($sql);
                 modal.style.display = 'none';
             }
         };
+
+        function abrirModalEditar(id, nome, descricao) {
+            document.getElementById('editarId').value = id;
+            document.getElementById('editarNome').value = nome;
+            document.getElementById('editarDescricao').value = descricao;
+            document.getElementById('modalEditar').style.display = 'flex';
+        }
+
+        window.onclick = function (e) {
+            const modalEditar = document.getElementById('modalEditar');
+            if (e.target === modalEditar) {
+                modalEditar.style.display = 'none';
+            }
+        };
+
     </script>
 
 </body>
