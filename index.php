@@ -15,6 +15,7 @@ if (isset($_SESSION["user_id"])) {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Amino 2.0</title>
+    <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
@@ -104,6 +105,65 @@ if (isset($_SESSION["user_id"])) {
             padding: 12px;
             font-size: 14px;
         }
+
+        .modal-aviso {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .modal-aviso-content {
+            background: #fff;
+            padding: 30px 28px;
+            border-radius: 14px;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+            animation: aparecer 0.3s ease;
+        }
+
+        .modal-aviso-content h2 {
+            color: #5a2d82;
+            margin-bottom: 14px;
+        }
+
+        .modal-aviso-content p {
+            font-size: 15px;
+            color: #444;
+            line-height: 1.5;
+        }
+
+        .modal-aviso-content button {
+            margin-top: 20px;
+            padding: 10px 22px;
+            background: #5a2d82;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .modal-aviso-content button:hover {
+            opacity: 0.9;
+        }
+
+        @keyframes aparecer {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 
@@ -118,6 +178,7 @@ if (isset($_SESSION["user_id"])) {
     </header>
 
     <main>
+        <img width="200" src="assets/logopng.png" alt="logo">
         <h2>Bem-vindo ao Amino 2.0</h2>
         <p>
             Amino 2.0 é a nova geração de comunidades online.
@@ -130,6 +191,40 @@ if (isset($_SESSION["user_id"])) {
     <footer>
         © 2025 Andrey. Todos os direitos reservados.
     </footer>
+
+    <div id="modalAviso" class="modal-aviso">
+        <div class="modal-aviso-content">
+            <h2>⚠️ Ambiente de Testes</h2>
+            <p>
+                Este site está em <strong>fase de testes</strong>.
+                <br><br>
+                Não utilize dados reais ou sensíveis.
+                <br>
+                Caso utilize, a responsabilidade é inteiramente do usuário.
+            </p>
+            <button onclick="fecharAviso()">Entendi</button>
+        </div>
+    </div>
+
+    <script>
+        const MODAL_KEY = 'aviso_teste_aceito';
+
+        function fecharAviso() {
+            localStorage.setItem(MODAL_KEY, 'true');
+            document.getElementById('modalAviso').style.display = 'none';
+        }
+
+        // Quando a página carregar
+        window.addEventListener('DOMContentLoaded', () => {
+            const aceito = localStorage.getItem(MODAL_KEY);
+
+            if (aceito === 'true') {
+                const modal = document.getElementById('modalAviso');
+                if (modal) modal.style.display = 'none';
+            }
+        });
+    </script>
+
 
 </body>
 

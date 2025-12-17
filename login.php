@@ -18,6 +18,7 @@ $cadastroSucesso = isset($_GET["cadastro"]) && $_GET["cadastro"] === "sucesso";
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Amino 2.0 | Login</title>
+  <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
@@ -99,7 +100,7 @@ $cadastroSucesso = isset($_GET["cadastro"]) && $_GET["cadastro"] === "sucesso";
 
     <p>
       Não tem conta?
-      <a href="cadastro.php">Cadastre-se</a>
+      <a href="cadastrar.php">Cadastre-se</a>
     </p>
   </div>
 
