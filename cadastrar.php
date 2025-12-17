@@ -13,15 +13,21 @@ if (isset($_SESSION["user_id"])) {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Amino 2.0 | Cadastro</title>
-
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
+        rel="stylesheet">
     <style>
         body {
-            font-family: Arial, Helvetica, sans-serif;
-            background: #f5f5f5;
+            font-family: 'Nunito', sans-serif;
+            background: radial-gradient(circle at top,
+                    #efe6f8 0%,
+                    #f5f5f5 60%);
             display: flex;
             align-items: center;
             justify-content: center;
             height: 100vh;
+            overflow: hidden;
         }
 
         .container {
@@ -46,6 +52,7 @@ if (isset($_SESSION["user_id"])) {
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 14px;
+            box-sizing: border-box;
         }
 
         button {

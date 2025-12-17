@@ -26,25 +26,33 @@ $result = $conn->query($sql);
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Amino 2.0 - Comunidades</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
+        rel="stylesheet">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: 'Nunito', sans-serif;
         }
 
         body {
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            background: #f5f5f5;
+            background: radial-gradient(circle at top,
+                    #efe6f8 0%,
+                    #f5f5f5 60%);
             color: #333;
         }
 
         /* HEADER / NAVBAR */
         header {
-            background: #5a2d82;
+            background: linear-gradient(135deg, #5a2d82, #6d3aa0);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
             color: #fff;
             padding: 16px 32px;
             display: flex;
