@@ -1,6 +1,5 @@
 <?php
-session_start();
-if (!isset($_SESSION['user_id'])) exit;
+require_once 'auth.php';
 
 $idPost = intval($_POST['id_post'] ?? 0);
 $idComu = intval($_POST['id_comunidade'] ?? 0);

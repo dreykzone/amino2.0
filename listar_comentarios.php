@@ -1,4 +1,6 @@
 <?php
+require_once 'auth.php';
+
 $conn = new mysqli("localhost", "root", "", "amino2");
 
 $id_post = intval($_GET['id_post'] ?? 0);

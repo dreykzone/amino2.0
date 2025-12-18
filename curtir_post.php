@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once 'auth.php';
 header('Content-Type: application/json');
 
 // verifica login

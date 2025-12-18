@@ -1,5 +1,6 @@
 <?php
 session_start();
+
 $conn = new mysqli("localhost", "root", "", "amino2");
 
 if ($conn->connect_error) {
@@ -7,7 +8,7 @@ if ($conn->connect_error) {
     exit;
 }
 
-$email = $_POST["email"] ?? "";
+$email = trim($_POST["email"] ?? "");
 $password = $_POST["password"] ?? "";
 
 $sql = "SELECT id, username, password_hash FROM users WHERE email = ?";
@@ -28,8 +29,14 @@ if (!password_verify($password, $user["password_hash"])) {
     exit;
 }
 
+/* 🔐 REGENERA A SESSÃO AQUI */
+session_regenerate_id(true);
+
+/* SETA A SESSÃO */
 $_SESSION["user_id"] = $user["id"];
 $_SESSION["username"] = $user["username"];
+$_SESSION["login_time"] = time(); // opcional, mas útil
 
 header("Location: secao_comunidades.php");
 exit;
+?>

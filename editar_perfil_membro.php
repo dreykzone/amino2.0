@@ -1,6 +1,5 @@
 <?php
-session_start();
-if (!isset($_SESSION['user_id'])) exit;
+require_once 'auth.php';
 
 $conn = new mysqli("localhost", "root", "", "amino2");
 

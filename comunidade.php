@@ -1,10 +1,5 @@
 <?php
-session_start();
-
-if (!isset($_SESSION["user_id"])) {
-    header("Location: login.php");
-    exit;
-}
+require_once 'auth.php';
 
 $conn = new mysqli("localhost", "root", "", "amino2");
 if ($conn->connect_error)
@@ -148,13 +143,6 @@ $nomeExibido = $userData['nome_exibido'] ?? $_SESSION['username'];
             margin: auto;
         }
 
-        .box img {
-            width: 100%;
-            max-height: 280px;
-            object-fit: cover;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
 
         .box h2 {
             color: #5a2d82;
@@ -340,6 +328,29 @@ $nomeExibido = $userData['nome_exibido'] ?? $_SESSION['username'];
             object-fit: cover;
             border: 2px solid rgba(255, 255, 255, 0.6);
         }
+
+        .community-header {
+            position: relative;
+            height: 220px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 12px;
+            margin-bottom: 70px;
+            /* espaço pra logo sair pra fora */
+        }
+
+        .community-logo {
+            position: absolute;
+            bottom: -45px;
+            left: 30px;
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #fff;
+            border: 4px solid #fff;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+        }
     </style>
 </head>
 
@@ -361,9 +372,16 @@ $nomeExibido = $userData['nome_exibido'] ?? $_SESSION['username'];
 
     <main>
         <div class="box">
-            <?php if (!empty($comunidade["imagem"])): ?>
-                <img src="<?= htmlspecialchars($comunidade["imagem"]) ?>" alt="Imagem da comunidade">
-            <?php endif; ?>
+            <div class="community-header" style="background-image: url('<?= htmlspecialchars(
+                $comunidade['background'] ?: 'assets/bg-default.jpg'
+            ) ?>');">
+
+                <?php if (!empty($comunidade["imagem"])): ?>
+                    <img class="community-logo" src="<?= htmlspecialchars($comunidade["imagem"]) ?>"
+                        alt="Logo da comunidade">
+                <?php endif; ?>
+            </div>
+
 
             <h2><?= htmlspecialchars($comunidade["nome"]) ?></h2>
             <p><?= htmlspecialchars($comunidade["descricao"]) ?></p>

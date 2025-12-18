@@ -1,10 +1,5 @@
 <?php 
-session_start();
-
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit;
-}
+require_once 'auth.php';
 
 $conn = new mysqli("localhost","root","","amino2");
 if ($conn->connect_error) die("Erro de conexão");
