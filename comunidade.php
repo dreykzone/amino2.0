@@ -11,20 +11,33 @@ if ($conn->connect_error)
     die("Erro conexão");
 
 $id = intval($_GET["id"] ?? 0);
-$sql = "SELECT c.*, u.username FROM comunidades c JOIN users u ON u.id = c.id_criador WHERE c.id = ?";
+
+/* =========================
+   BUSCA DADOS DA COMUNIDADE
+========================= */
+$sql = "SELECT c.*, u.username 
+        FROM comunidades c 
+        JOIN users u ON u.id = c.id_criador 
+        WHERE c.id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $id);
 $stmt->execute();
 $result = $stmt->get_result();
+
 if ($result->num_rows === 0)
     die("Comunidade não encontrada");
+
 $comunidade = $result->fetch_assoc();
 
-
+/* =========================
+   VERIFICA SE É MEMBRO
+========================= */
 if ($_SESSION['user_id'] == $comunidade['id_criador']) {
     $isMembro = true;
 } else {
-    $sqlMembro = "SELECT * FROM membros_comunidade WHERE id_usuario = ? AND id_comunidade = ?";
+    $sqlMembro = "SELECT 1 
+                  FROM membros_comunidade 
+                  WHERE id_usuario = ? AND id_comunidade = ?";
     $stmtMembro = $conn->prepare($sqlMembro);
     $stmtMembro->bind_param("ii", $_SESSION['user_id'], $comunidade['id']);
     $stmtMembro->execute();
@@ -32,7 +45,45 @@ if ($_SESSION['user_id'] == $comunidade['id_criador']) {
     $isMembro = $resultMembro->num_rows > 0;
 }
 
+$perfilMembro = null;
+
+if ($isMembro) {
+    $sqlPerfil = "
+        SELECT nickname, bio, avatar
+        FROM membros_comunidade
+        WHERE id_usuario = ? AND id_comunidade = ?
+        LIMIT 1
+    ";
+    $stmtPerfil = $conn->prepare($sqlPerfil);
+    $stmtPerfil->bind_param("ii", $_SESSION['user_id'], $comunidade['id']);
+    $stmtPerfil->execute();
+    $perfilMembro = $stmtPerfil->get_result()->fetch_assoc();
+}
+
+
+/* =========================
+   NOME EXIBIDO (NICK OU GLOBAL)
+========================= */
+$sqlUser = "
+SELECT 
+    COALESCE(NULLIF(mc.nickname, ''), u.username) AS nome_exibido
+FROM users u
+LEFT JOIN membros_comunidade mc
+    ON mc.id_usuario = u.id
+   AND mc.id_comunidade = ?
+WHERE u.id = ?
+LIMIT 1
+";
+
+$stmtUser = $conn->prepare($sqlUser);
+$stmtUser->bind_param("ii", $id, $_SESSION['user_id']);
+$stmtUser->execute();
+$userResult = $stmtUser->get_result();
+$userData = $userResult->fetch_assoc();
+
+$nomeExibido = $userData['nome_exibido'] ?? $_SESSION['username'];
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -281,6 +332,14 @@ if ($_SESSION['user_id'] == $comunidade['id_criador']) {
             padding: 12px;
             font-size: 14px;
         }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+        }
     </style>
 </head>
 
@@ -288,7 +347,16 @@ if ($_SESSION['user_id'] == $comunidade['id_criador']) {
 
     <header>
         <h1>Amino 2.0</h1>
-        <div class="user"><?= htmlspecialchars($_SESSION["username"]) ?></div>
+        <div class="user" <?php if ($isMembro): ?>onclick="abrirModalPerfil()" <?php endif; ?>
+            style="cursor:pointer; display:flex; align-items:center; gap:10px;">
+
+            <?php if ($isMembro && !empty($perfilMembro['avatar'])): ?>
+                <img src="<?= htmlspecialchars($perfilMembro['avatar']) ?>" class="avatar">
+            <?php endif; ?>
+
+            @<?= htmlspecialchars($nomeExibido) ?>
+        </div>
+
     </header>
 
     <main>
@@ -316,11 +384,17 @@ if ($_SESSION['user_id'] == $comunidade['id_criador']) {
             <h3 style="margin-bottom: 15px;">Posts</h3>
 
             <?php
-            $sqlPosts = "SELECT p.*, u.username 
-                     FROM posts p 
-                     JOIN users u ON u.id = p.id_usuario
-                     WHERE p.id_comunidade = ?
-                     ORDER BY p.data_criacao DESC";
+            $sqlPosts = "SELECT 
+    p.*,
+    COALESCE(mc.nickname, u.username) AS nome_exibido
+FROM posts p
+JOIN users u ON u.id = p.id_usuario
+LEFT JOIN membros_comunidade mc 
+    ON mc.id_usuario = p.id_usuario 
+   AND mc.id_comunidade = p.id_comunidade
+WHERE p.id_comunidade = ?
+ORDER BY p.data_criacao DESC";
+
             $stmtPosts = $conn->prepare($sqlPosts);
             $stmtPosts->bind_param("i", $comunidade['id']);
             $stmtPosts->execute();
@@ -342,7 +416,8 @@ if ($_SESSION['user_id'] == $comunidade['id_criador']) {
                 <div class="post">
                     <h4><?= htmlspecialchars($post['titulo']) ?></h4>
                     <p><?= nl2br(htmlspecialchars($post['texto'])) ?></p>
-                    <small>Publicado por @<?= htmlspecialchars($post['username']) ?> em <?= $post['data_criacao'] ?></small>
+                    <small>Publicado por @<?= htmlspecialchars($post['nome_exibido']) ?> em
+                        <?= $post['data_criacao'] ?></small>
                     <div style="margin-top:10px; display: flex; gap: 10px;">
                         <button type="button" class="btn-comentario" onclick="abrirModalComentarios(<?= $post['id'] ?>)">
                             <span>💬</span> Comentários
@@ -408,6 +483,28 @@ if ($_SESSION['user_id'] == $comunidade['id_criador']) {
         </div>
     </div>
 
+    <?php if ($isMembro): ?>
+        <div class="modal" id="modalPerfil">
+            <div class="modal-content">
+                <h2>Editar perfil na comunidade</h2>
+
+                <form action="editar_perfil_membro.php" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="id_comunidade" value="<?= $comunidade['id'] ?>">
+
+                    <input type="text" name="nickname" placeholder="Nickname"
+                        value="<?= htmlspecialchars($perfilMembro['nickname'] ?? '') ?>">
+
+                    <textarea name="bio"
+                        placeholder="Sua bio"><?= htmlspecialchars($perfilMembro['bio'] ?? '') ?></textarea>
+
+                    <input type="file" name="avatar" accept="image/*">
+
+                    <button type="submit">Salvar</button>
+                </form>
+            </div>
+        </div>
+    <?php endif; ?>
+
 
 
     <script>
@@ -424,13 +521,16 @@ if ($_SESSION['user_id'] == $comunidade['id_criador']) {
             document.getElementById('modalComentarios').style.display = 'flex';
             document.getElementById('comentarioPostId').value = postId;
 
-            // Carregar comentários via AJAX (ou você pode carregar direto no PHP antes de renderizar)
-            fetch('listar_comentarios.php?id_post=' + postId)
+            fetch(
+                'listar_comentarios.php?id_post=' + postId +
+                '&id_comunidade=<?= $comunidade['id'] ?>'
+            )
                 .then(res => res.text())
                 .then(html => {
                     document.getElementById('listaComentarios').innerHTML = html;
                 });
         }
+
 
         function toggleCurtir(postId, btn) {
             fetch('curtir_post.php', {
@@ -456,6 +556,7 @@ if ($_SESSION['user_id'] == $comunidade['id_criador']) {
         window.onclick = function (e) {
             const modalBlog = document.getElementById('modalBlog');
             const modalComentarios = document.getElementById('modalComentarios');
+            const modalPerfil = document.getElementById('modalPerfil');
 
             if (e.target === modalBlog) {
                 modalBlog.style.display = 'none';
@@ -463,9 +564,14 @@ if ($_SESSION['user_id'] == $comunidade['id_criador']) {
             if (e.target === modalComentarios) {
                 modalComentarios.style.display = 'none';
             }
+            if (e.target === modalPerfil) {
+                modalPerfil.style.display = 'none';
+            }
         };
 
-
+        function abrirModalPerfil() {
+            document.getElementById('modalPerfil').style.display = 'flex';
+        }
 
     </script>
 

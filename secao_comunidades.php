@@ -11,9 +11,15 @@ if ($conn->connect_error) {
     die("Erro conexão");
 }
 
-$sql = "SELECT c.*, u.username 
+
+$sql = "SELECT 
+            c.*, 
+            u.username,
+            (COUNT(mc.id_usuario) + 1) AS total_membros
         FROM comunidades c
         JOIN users u ON u.id = c.id_criador
+        LEFT JOIN membros_comunidade mc ON mc.id_comunidade = c.id
+        GROUP BY c.id
         ORDER BY c.id DESC";
 
 $result = $conn->query($sql);
@@ -219,6 +225,9 @@ $result = $conn->query($sql);
                         <?= htmlspecialchars($c["nome"]) ?>
                     </h3>
                     <p><?= htmlspecialchars($c["descricao"]) ?></p>
+                    <p style="margin-top:8px; font-size:13px; color:#777;">
+                        👥 <?= $c['total_membros'] ?> membro<?= $c['total_membros'] > 1 ? 's' : '' ?>
+                    </p>
                     <small>Criado por @<?= htmlspecialchars($c["username"]) ?></small>
 
                     <?php if ($_SESSION['user_id'] == $c['id_criador']): ?>
