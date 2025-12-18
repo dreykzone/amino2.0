@@ -267,6 +267,22 @@ $result = $conn->query($sql);
             border-radius: 6px;
             cursor: pointer;
         }
+
+        .badge-membros {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: bold;
+
+            color: #555;
+            background: #f2f2f2;
+            margin-bottom: 10px;
+            border-radius: 999px;
+            box-shadow: 0 4px 10px rgba(90, 45, 130, 0.3);
+        }
     </style>
 </head>
 
@@ -305,10 +321,10 @@ $result = $conn->query($sql);
                         </h3>
 
                         <p><?= htmlspecialchars($c["descricao"]) ?></p>
-
-                        <p class="membros">
-                            👥 <?= $c['total_membros'] ?> membro<?= $c['total_membros'] > 1 ? 's' : '' ?>
-                        </p>
+                        <div class="membros">
+                            <span class="badge-membros">👥 <?= $c['total_membros'] ?>
+                                membro<?= $c['total_membros'] > 1 ? 's' : '' ?></span>
+                        </div>
 
                         <small>Criado por @<?= htmlspecialchars($c["username"]) ?></small>
 
