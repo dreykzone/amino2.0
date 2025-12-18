@@ -387,6 +387,7 @@ $result = $conn->query($sql);
                 <input type="text" name="nome" id="editarNome" placeholder="Nome da comunidade" required>
                 <textarea name="descricao" id="editarDescricao" placeholder="Descrição" required></textarea>
                 <input type="file" name="imagem" accept="image/*" />
+                <input type="file" name="background" accept="image/*" />
                 <button type="submit">Salvar Alterações</button>
             </form>
         </div>
