@@ -14,14 +14,16 @@ if ($conn->connect_error) {
 $nome = trim($_POST["nome"] ?? "");
 $descricao = trim($_POST["descricao"] ?? "");
 $idCriador = $_SESSION["user_id"];
-$imagemPath = null;
+
+$imagemPath = null;      // logo
+$backgroundPath = null;  // background
 
 /* =========================
-   UPLOAD IMAGEM
+   UPLOAD LOGO
 ========================= */
-if (isset($_FILES["imagem"]) && $_FILES["imagem"]["error"] === 0) {
+if (!empty($_FILES["imagem"]["name"]) && $_FILES["imagem"]["error"] === 0) {
     $ext = pathinfo($_FILES["imagem"]["name"], PATHINFO_EXTENSION);
-    $nomeArquivo = uniqid("comunidade_") . "." . $ext;
+    $nomeArquivo = uniqid("logo_") . "." . $ext;
 
     if (!is_dir("uploads")) {
         mkdir("uploads", 0777, true);
@@ -32,13 +34,36 @@ if (isset($_FILES["imagem"]) && $_FILES["imagem"]["error"] === 0) {
 }
 
 /* =========================
+   UPLOAD BACKGROUND
+========================= */
+if (!empty($_FILES["background"]["name"]) && $_FILES["background"]["error"] === 0) {
+    $ext = pathinfo($_FILES["background"]["name"], PATHINFO_EXTENSION);
+    $nomeArquivo = uniqid("bg_") . "." . $ext;
+
+    if (!is_dir("uploads")) {
+        mkdir("uploads", 0777, true);
+    }
+
+    $backgroundPath = "uploads/" . $nomeArquivo;
+    move_uploaded_file($_FILES["background"]["tmp_name"], $backgroundPath);
+}
+
+/* =========================
    CRIA COMUNIDADE
 ========================= */
-$sql = "INSERT INTO comunidades (id_criador, nome, descricao, imagem)
-        VALUES (?, ?, ?, ?)";
+$sql = "INSERT INTO comunidades 
+(id_criador, nome, descricao, imagem, background)
+VALUES (?, ?, ?, ?, ?)";
 
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("isss", $idCriador, $nome, $descricao, $imagemPath);
+$stmt->bind_param(
+    "issss",
+    $idCriador,
+    $nome,
+    $descricao,
+    $imagemPath,
+    $backgroundPath
+);
 $stmt->execute();
 
 /* 🔑 ID DA COMUNIDADE CRIADA */

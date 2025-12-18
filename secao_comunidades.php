@@ -199,6 +199,74 @@ $result = $conn->query($sql);
             padding: 12px;
             font-size: 14px;
         }
+
+        .card {
+            padding: 0;
+            overflow: hidden;
+        }
+
+        /* BACKGROUND */
+        .card-header {
+            height: 110px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            background-color: #5a2d82;
+        }
+
+        /* LOGO */
+        .card-logo {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            object-fit: cover;
+            position: absolute;
+            bottom: -36px;
+            left: 16px;
+            background: #fff;
+            border: 3px solid #fff;
+        }
+
+        /* CONTEÚDO */
+        .card-body {
+            padding: 48px 16px 16px;
+        }
+
+        .card-body h3 {
+            color: #5a2d82;
+            margin-bottom: 6px;
+            cursor: pointer;
+        }
+
+        .membros {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #777;
+        }
+
+        .acoes {
+            margin-top: 12px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-editar {
+            padding: 6px 12px;
+            background: #f0ad4e;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-deletar {
+            padding: 6px 12px;
+            background: #d9534f;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -218,42 +286,58 @@ $result = $conn->query($sql);
         <div class="comunidades">
             <?php while ($c = $result->fetch_assoc()): ?>
                 <div class="card">
-                    <?php if ($c["imagem"]): ?>
-                        <img src="<?= htmlspecialchars($c["imagem"]) ?>"
-                            style="width:100%; border-radius:10px; margin-bottom:10px;">
-                    <?php endif; ?>
 
-                    <h3 onclick="window.location='comunidade.php?id=<?= $c['id'] ?>'" style="cursor:pointer;">
-                        <?= htmlspecialchars($c["nome"]) ?>
-                    </h3>
-                    <p><?= htmlspecialchars($c["descricao"]) ?></p>
-                    <p style="margin-top:8px; font-size:13px; color:#777;">
-                        👥 <?= $c['total_membros'] ?> membro<?= $c['total_membros'] > 1 ? 's' : '' ?>
-                    </p>
-                    <small>Criado por @<?= htmlspecialchars($c["username"]) ?></small>
+                    <!-- HEADER VISUAL -->
+                    <div class="card-header" style="background-image: url('<?= htmlspecialchars($c['background']) ?>');">
 
-                    <?php if ($_SESSION['user_id'] == $c['id_criador']): ?>
-                        <div style="margin-top:10px; display:flex; gap:10px;">
-                            <form action="editar_comunidade.php" method="GET" style="display:inline;"
-                                onsubmit="event.stopPropagation();">
-                                <input type="hidden" name="id" value="<?= $c['id'] ?>">
-                                <button type="button"
-                                    onclick="event.stopPropagation(); abrirModalEditar('<?= $c['id'] ?>','<?= htmlspecialchars($c['nome'], ENT_QUOTES) ?>','<?= htmlspecialchars($c['descricao'], ENT_QUOTES) ?>')"
-                                    style="padding:6px 12px; background:#f0ad4e; color:#fff; border:none; border-radius:6px; cursor:pointer;">
+
+                        <?php if ($c["imagem"]): ?>
+                            <img class="card-logo" src="<?= htmlspecialchars($c["imagem"]) ?>">
+                        <?php endif; ?>
+
+                    </div>
+
+                    <!-- CONTEÚDO -->
+                    <div class="card-body">
+
+                        <h3 onclick="window.location='comunidade.php?id=<?= $c['id'] ?>'">
+                            <?= htmlspecialchars($c["nome"]) ?>
+                        </h3>
+
+                        <p><?= htmlspecialchars($c["descricao"]) ?></p>
+
+                        <p class="membros">
+                            👥 <?= $c['total_membros'] ?> membro<?= $c['total_membros'] > 1 ? 's' : '' ?>
+                        </p>
+
+                        <small>Criado por @<?= htmlspecialchars($c["username"]) ?></small>
+
+                        <?php if ($_SESSION['user_id'] == $c['id_criador']): ?>
+                            <div class="acoes">
+                                <button onclick="event.stopPropagation(); abrirModalEditar(
+                        '<?= $c['id'] ?>',
+                        '<?= htmlspecialchars($c['nome'], ENT_QUOTES) ?>',
+                        '<?= htmlspecialchars($c['descricao'], ENT_QUOTES) ?>'
+                    )" class="btn-editar">
                                     Editar
                                 </button>
 
-                            </form>
+                                <form action="deletar_comunidade.php" method="POST"
+                                    onsubmit="event.stopPropagation(); return confirm('Tem certeza?');">
 
-                            <form action="deletar_comunidade.php" method="POST" style="display:inline;"
-                                onsubmit="event.stopPropagation(); return confirm('Tem certeza que quer deletar?');">
-                                <input type="hidden" name="id" value="<?= $c['id'] ?>">
-                                <button type="submit"
-                                    style="padding:6px 12px; background:#d9534f; color:#fff; border:none; border-radius:6px; cursor:pointer;">Deletar</button>
-                            </form>
-                        </div>
-                    <?php endif; ?>
+                                    <input type="hidden" name="id" value="<?= $c['id'] ?>">
+
+                                    <button type="submit" class="btn-deletar">
+                                        Deletar
+                                    </button>
+                                </form>
+                            </div>
+                        <?php endif; ?>
+
+                    </div>
                 </div>
+
+
             <?php endwhile; ?>
         </div>
     </main>
@@ -268,6 +352,7 @@ $result = $conn->query($sql);
                 <input type="text" name="nome" placeholder="Nome da comunidade" required />
                 <textarea name="descricao" placeholder="Descrição" required></textarea>
                 <input type="file" name="imagem" accept="image/*" />
+                <input type="file" name="background" accept="image/*" />
                 <button type="submit">Criar</button>
             </form>
 
@@ -285,7 +370,7 @@ $result = $conn->query($sql);
                 <input type="hidden" name="id" id="editarId">
                 <input type="text" name="nome" id="editarNome" placeholder="Nome da comunidade" required>
                 <textarea name="descricao" id="editarDescricao" placeholder="Descrição" required></textarea>
-                <input type="file" name="imagem" accept="image/*">
+                <input type="file" name="imagem" accept="image/*" />
                 <button type="submit">Salvar Alterações</button>
             </form>
         </div>
