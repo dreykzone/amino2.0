@@ -11,12 +11,14 @@ if ($conn->connect_error) {
     die("Erro conexão");
 }
 
-$nome = $_POST["nome"] ?? "";
-$descricao = $_POST["descricao"] ?? "";
+$nome = trim($_POST["nome"] ?? "");
+$descricao = trim($_POST["descricao"] ?? "");
 $idCriador = $_SESSION["user_id"];
 $imagemPath = null;
 
-
+/* =========================
+   UPLOAD IMAGEM
+========================= */
 if (isset($_FILES["imagem"]) && $_FILES["imagem"]["error"] === 0) {
     $ext = pathinfo($_FILES["imagem"]["name"], PATHINFO_EXTENSION);
     $nomeArquivo = uniqid("comunidade_") . "." . $ext;
@@ -29,6 +31,9 @@ if (isset($_FILES["imagem"]) && $_FILES["imagem"]["error"] === 0) {
     move_uploaded_file($_FILES["imagem"]["tmp_name"], $imagemPath);
 }
 
+/* =========================
+   CRIA COMUNIDADE
+========================= */
 $sql = "INSERT INTO comunidades (id_criador, nome, descricao, imagem)
         VALUES (?, ?, ?, ?)";
 
@@ -36,5 +41,25 @@ $stmt = $conn->prepare($sql);
 $stmt->bind_param("isss", $idCriador, $nome, $descricao, $imagemPath);
 $stmt->execute();
 
-header("Location: secao_comunidades.php");
+/* 🔑 ID DA COMUNIDADE CRIADA */
+$idComunidade = $conn->insert_id;
+
+/* =========================
+   CRIADOR VIRA MEMBRO
+========================= */
+$sqlMembro = "
+INSERT INTO membros_comunidade 
+(id_usuario, id_comunidade, data_entrada)
+VALUES (?, ?, NOW())
+";
+
+$stmtMembro = $conn->prepare($sqlMembro);
+$stmtMembro->bind_param("ii", $idCriador, $idComunidade);
+$stmtMembro->execute();
+
+/* =========================
+   REDIRECT
+========================= */
+header("Location: comunidade.php?id=" . $idComunidade);
 exit;
+?>

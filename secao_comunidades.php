@@ -13,14 +13,16 @@ if ($conn->connect_error) {
 
 
 $sql = "SELECT 
-            c.*, 
-            u.username,
-            (COUNT(mc.id_usuario) + 1) AS total_membros
-        FROM comunidades c
-        JOIN users u ON u.id = c.id_criador
-        LEFT JOIN membros_comunidade mc ON mc.id_comunidade = c.id
-        GROUP BY c.id
-        ORDER BY c.id DESC";
+    c.*, 
+    u.username,
+    COUNT(DISTINCT mc.id_usuario) AS total_membros
+FROM comunidades c
+JOIN users u ON u.id = c.id_criador
+LEFT JOIN membros_comunidade mc 
+    ON mc.id_comunidade = c.id
+GROUP BY c.id
+ORDER BY c.id DESC";
+
 
 $result = $conn->query($sql);
 
