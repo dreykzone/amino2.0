@@ -1,12 +1,12 @@
 <?php
 require_once 'auth.php';
+require_once 'db.php';
 
 $idPost = intval($_POST['id_post'] ?? 0);
 $idComu = intval($_POST['id_comunidade'] ?? 0);
 $comentario = trim($_POST['comentario'] ?? '');
 
 // Verifica se usuário é membro da comunidade
-$conn = new mysqli("localhost","root","", "amino2");
 $stmt = $conn->prepare("SELECT * FROM membros_comunidade WHERE id_usuario=? AND id_comunidade=?");
 $stmt->bind_param("ii", $_SESSION['user_id'], $idComu);
 $stmt->execute();

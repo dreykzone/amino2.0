@@ -1,9 +1,6 @@
 <?php
 require_once 'auth.php';
-
-$conn = new mysqli("localhost", "root", "", "amino2");
-if ($conn->connect_error)
-    die("Erro conexão");
+require_once 'db.php';
 
 $id = intval($_GET["id"] ?? 0);
 

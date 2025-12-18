@@ -1,12 +1,6 @@
 <?php
+require_once 'db.php';
 session_start();
-
-$conn = new mysqli("localhost", "root", "", "amino2");
-
-if ($conn->connect_error) {
-    header("Location: login.php?erro=1");
-    exit;
-}
 
 $email = trim($_POST["email"] ?? "");
 $password = $_POST["password"] ?? "";

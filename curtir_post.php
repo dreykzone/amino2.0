@@ -1,18 +1,7 @@
 <?php
 require_once 'auth.php';
+require_once 'db.php';
 header('Content-Type: application/json');
-
-// verifica login
-if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'msg' => 'Não logado']);
-    exit;
-}
-
-$conn = new mysqli("localhost", "root", "", "amino2");
-if ($conn->connect_error) {
-    echo json_encode(['success' => false, 'msg' => 'Erro de conexão']);
-    exit;
-}
 
 $id_post = intval($_POST['id_post']);
 $id_usuario = $_SESSION['user_id'];

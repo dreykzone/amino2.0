@@ -1,7 +1,6 @@
 <?php
 require_once 'auth.php';
-
-$conn = new mysqli("localhost", "root", "", "amino2");
+require_once 'db.php';
 
 $id_post = intval($_GET['id_post'] ?? 0);
 $id_comunidade = intval($_GET['id_comunidade'] ?? 0);

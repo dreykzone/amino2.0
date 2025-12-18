@@ -1,12 +1,6 @@
 <?php
+require_once 'db.php';
 header("Content-Type: application/json");
-
-$conn = new mysqli("localhost", "root", "", "amino2");
-
-if ($conn->connect_error) {
-    echo json_encode(["success" => false]);
-    exit;
-}
 
 $username = $_POST["username"] ?? "";
 $email = $_POST["email"] ?? "";

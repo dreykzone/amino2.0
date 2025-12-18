@@ -1,15 +1,6 @@
 <?php
 require_once 'auth.php';
-
-if (!isset($_SESSION["user_id"])) {
-    header("Location: login.php");
-    exit;
-}
-
-$conn = new mysqli("localhost", "root", "", "amino2");
-if ($conn->connect_error) {
-    die("Erro conexão");
-}
+require_once 'db.php';
 
 $nome = trim($_POST["nome"] ?? "");
 $descricao = trim($_POST["descricao"] ?? "");
