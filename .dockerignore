@@ -1,0 +1,10 @@
+.git
+.git/**
+.env
+.env.*
+!.env.example
+uploads
+uploads/**
+Dockerfile
+docker-compose*.yml
+README.docker.md
